@@ -11,6 +11,20 @@ usersRouter.get('/', (req, res) => {
   
   
 usersRouter.post('/', (req,res) => {
+
+    const {email} = req.body
+
+    const existingEmail = (element) => element.email === email
+    const emailAlreadyExists = users.some(existingEmail)
+
+    if(emailAlreadyExists) {
+        return res.status(409).json({error: "A user with the provided email already exists"})
+    }
+
+
+    if(!email) {
+        return res.status(400).json({error: "Missing fields in request body"})
+    }
   
     const newId = users.length + 1
   
@@ -30,6 +44,10 @@ usersRouter.get('/:id', (req,res) => {
 
     const user = users.find(user => user.id === idAsNumber);
 
+    if(!user) {
+        return res.status(404).json({error: "A user with the provided ID does not exist"})
+    }
+
     res.json({"user": user})
 })
 
@@ -45,6 +63,10 @@ usersRouter.delete('/:id', (req,res) => {
     });
 
     const user = users[userIndex]
+
+    if(!user) {
+        return res.status(404).json({error: "A user with the provided ID does not exist"})
+    }
 
     users.splice(userIndex, 1)
 
@@ -63,6 +85,19 @@ usersRouter.put('/:id', (req,res) => {
     });
 
     const oldUser = users.find(user => user.id === idAsNumber);
+
+    if(!oldUser) {
+        return res.status(404).json({error: "A user with the provided ID does not exist"})
+    }
+
+    const {email} = req.body
+
+    const existingEmail = (element) => element.email === email
+    const emailAlreadyExists = users.some(existingEmail)
+
+    if(emailAlreadyExists) {
+        return res.status(409).json({error: "A user with the provided email already exists"})
+    }
 
     const updateduser = {...req.body,  
         id: oldUser.id
